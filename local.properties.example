@@ -7,3 +7,10 @@ KAKAO_NATIVE_APP_KEY=
 NAVER_MAP_CLIENT_ID=
 TMAP_APP_KEY=
 GOOGLE_MAPS_API_KEY=
+
+# Release signing for Google Play upload builds.
+# Keep real passwords only in local.properties.
+NAVIAUTO_STORE_FILE=D\:\\사업관련\\CNA\\password\\xcan-naviauto-upload-key.jks
+NAVIAUTO_STORE_PASSWORD=
+NAVIAUTO_KEY_ALIAS=xcan-naviauto-upload
+NAVIAUTO_KEY_PASSWORD=

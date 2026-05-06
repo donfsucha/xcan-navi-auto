@@ -5,7 +5,7 @@ plugins {
 def localProps = new Properties()
 def localPropsFile = rootProject.file("local.properties")
 if (localPropsFile.exists()) {
-    localPropsFile.withInputStream { localProps.load(it) }
+    localPropsFile.withInputStream { localProps.load(new InputStreamReader(it, "UTF-8")) }
 }
 
 def escapedProp = { name ->
@@ -13,6 +13,12 @@ def escapedProp = { name ->
             .replace("\\", "\\\\")
             .replace("\"", "\\\"")
 }
+
+def releaseStoreFile = localProps.getProperty("NAVIAUTO_STORE_FILE", "")
+def releaseStorePassword = localProps.getProperty("NAVIAUTO_STORE_PASSWORD", "")
+def releaseKeyAlias = localProps.getProperty("NAVIAUTO_KEY_ALIAS", "")
+def releaseKeyPassword = localProps.getProperty("NAVIAUTO_KEY_PASSWORD", "")
+def hasReleaseSigning = releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
 
 android {
     namespace "com.xcan.naviauto"
@@ -42,6 +48,27 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
     }
 }
 

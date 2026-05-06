@@ -130,13 +130,22 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
             if (!driveCountdownActive || driveFlowStarted || homeView == null || homeView.getVisibility() != View.VISIBLE) {
                 return;
             }
-            updateDriveButtonCountdown();
+            driveCountdownSeconds--;
             if (driveCountdownSeconds <= 0) {
-                executeDriveFlow();
                 return;
             }
-            driveCountdownSeconds--;
+            updateDriveButtonCountdown();
             clockHandler.postDelayed(this, 1000L);
+        }
+    };
+
+    private final Runnable driveAutoStartRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!driveCountdownActive || driveFlowStarted || homeView == null || homeView.getVisibility() != View.VISIBLE) {
+                return;
+            }
+            executeDriveFlow();
         }
     };
 
@@ -182,6 +191,9 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         super.onResume();
         if (mapView != null) {
             mapView.onResume();
+        }
+        if (driveFlowStarted && homeView != null && homeView.getVisibility() == View.VISIBLE) {
+            resetDriveButtonForNextRun();
         }
     }
 
@@ -285,7 +297,11 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         root.addView(periodText, matchWrap());
 
         driveButton = primaryLargeButton("");
-        driveButton.setOnClickListener(v -> executeDriveFlow());
+        driveButton.setClickable(true);
+        driveButton.setOnClickListener(v -> {
+            cancelDriveCountdown();
+            executeDriveFlow();
+        });
         root.addView(driveButton, matchWrap());
 
         TextView sequenceTitle = text("실행 순서", 14, Typeface.BOLD, COLOR_SUBTLE);
@@ -524,9 +540,9 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         editor.root.addView(editor.statusText, matchWrap());
 
         LinearLayout buttonRow = row();
-        Button mapButton = secondaryButton("지도");
+        Button mapButton = secondaryButton("지도 수정");
         mapButton.setOnClickListener(v -> openMapSelection(editor));
-        Button saveButton = primaryButton("저장");
+        Button saveButton = primaryButton("수정 저장");
         saveButton.setOnClickListener(v -> {
             selectingExtraDestination = editor;
             if (saveDestinationsOnly()) {
@@ -613,12 +629,15 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         block.addView(confirmText, matchWrap());
 
         LinearLayout buttons = row();
-        Button previewButton = secondaryButton("지도");
+        Button previewButton = secondaryButton("지도 수정");
         previewButton.setOnClickListener(v -> openMapSelection(home));
         Button confirmButton = primaryButton("확인");
         confirmButton.setOnClickListener(v -> confirmAddress(home));
+        Button clearButton = secondaryButton("초기화");
+        clearButton.setOnClickListener(v -> clearDestination(home));
         buttons.addView(previewButton, weighted());
         buttons.addView(confirmButton, weighted());
+        buttons.addView(clearButton, weighted());
         block.addView(buttons, matchWrap());
         return block;
     }
@@ -789,12 +808,29 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         driveCountdownSeconds = 3;
         driveCountdownActive = true;
         updateDriveButtonCountdown();
+        clockHandler.postDelayed(driveAutoStartRunnable, 3000L);
         clockHandler.postDelayed(driveCountdownRunnable, 1000L);
     }
 
     private void cancelDriveCountdown() {
         driveCountdownActive = false;
         clockHandler.removeCallbacks(driveCountdownRunnable);
+        clockHandler.removeCallbacks(driveAutoStartRunnable);
+    }
+
+    private void resetDriveButtonForNextRun() {
+        driveFlowStarted = false;
+        driveCountdownSeconds = 3;
+        cancelDriveCountdown();
+        updateDriveButtonReady();
+    }
+
+    private void updateDriveButtonReady() {
+        if (driveButton == null) {
+            return;
+        }
+        driveButton.setEnabled(true);
+        driveButton.setText("드라이브 시작\n터치해서 실행");
     }
 
     private void updateDriveButtonCountdown() {
@@ -818,12 +854,13 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         driveFlowStarted = true;
         updateDriveButtonCountdown();
         if (saveDriveRunSettings()) {
-            flowController.start(this, settingsRepository.load(), null, this::setStatus);
+            boolean started = flowController.start(this, settingsRepository.load(), null, this::setStatus);
             updateHomeSummary();
+            if (!started) {
+                resetDriveButtonForNextRun();
+            }
         } else {
-            driveFlowStarted = false;
-            driveCountdownSeconds = 3;
-            updateDriveButtonCountdown();
+            resetDriveButtonForNextRun();
         }
     }
 
@@ -1039,6 +1076,26 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         }
         updateAddressConfirmState();
         setStatus((home ? "집" : "회사") + " 좌표 확인이 완료되었습니다.");
+    }
+
+    private void clearDestination(boolean home) {
+        EditText addressInput = home ? homeAddressInput : workAddressInput;
+        EditText latitudeInput = home ? homeLatitudeInput : workLatitudeInput;
+        EditText longitudeInput = home ? homeLongitudeInput : workLongitudeInput;
+        addressInput.setText("");
+        latitudeInput.setText("");
+        longitudeInput.setText("");
+        if (home) {
+            pendingHomePlaceKey = "";
+        } else {
+            pendingWorkPlaceKey = "";
+        }
+        settingsRepository.clearDestinationPlace(home);
+        updateAddressConfirmState();
+        updateHomeSummary();
+        String label = home ? "집" : "회사";
+        setStatus(label + " 목적지를 초기화했습니다. 드라이브 시작은 목적지 없이도 실행됩니다.");
+        Toast.makeText(this, label + " 목적지를 초기화했습니다.", Toast.LENGTH_SHORT).show();
     }
 
     private void confirmSelectedDestination() {

@@ -196,6 +196,26 @@ final class SettingsRepository {
         writeExtraDestinations(editor, destinations).apply();
     }
 
+    void clearDestinationPlace(boolean home) {
+        SharedPreferences.Editor editor = preferences.edit();
+        if (home) {
+            editor.remove(HOME_ADDRESS)
+                    .remove(HOME_LATITUDE)
+                    .remove(HOME_LONGITUDE)
+                    .remove(CONFIRMED_HOME_ADDRESS)
+                    .remove(CONFIRMED_HOME_LATITUDE)
+                    .remove(CONFIRMED_HOME_LONGITUDE);
+        } else {
+            editor.remove(WORK_ADDRESS)
+                    .remove(WORK_LATITUDE)
+                    .remove(WORK_LONGITUDE)
+                    .remove(CONFIRMED_WORK_ADDRESS)
+                    .remove(CONFIRMED_WORK_LATITUDE)
+                    .remove(CONFIRMED_WORK_LONGITUDE);
+        }
+        editor.apply();
+    }
+
     void saveDestinationPlaces(
             String homeAddress,
             String workAddress,
