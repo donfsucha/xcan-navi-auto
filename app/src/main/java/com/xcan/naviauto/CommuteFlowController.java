@@ -36,18 +36,8 @@ final class CommuteFlowController {
             return false;
         }
 
-        if (destination == null) {
-            notify(callback, "2단계: " + settings.navigationApp.label + " 앱만 실행");
-        } else {
-            notify(callback, "2단계: " + settings.navigationApp.label + " 길안내 실행");
-        }
-        boolean navigationStarted = navigationLauncher.launch(context, settings.navigationApp, destination);
-        if (!navigationStarted) {
-            notify(callback, settings.navigationApp.label + " 실행에 실패했습니다. 앱 설치 상태를 확인해 주세요.");
-            return false;
-        }
-
-        long mediaDelay = Math.max(300L, settings.musicLaunchDelayMs);
+        Place navigationDestination = destination;
+        long mediaDelay = Math.max(1200L, settings.musicLaunchDelayMs);
         handler.postDelayed(() -> {
             if (settings.autoPlayMusicEnabled) {
                 mediaCommandDispatcher.dispatch(context, settings.mediaCommandType);
@@ -56,6 +46,19 @@ final class CommuteFlowController {
                 notify(callback, "음악 자동 재생 시도는 꺼져 있습니다.");
             }
         }, mediaDelay);
+
+        long navigationDelay = settings.autoPlayMusicEnabled ? mediaDelay + 500L : 700L;
+        handler.postDelayed(() -> {
+            if (navigationDestination == null) {
+                notify(callback, "2단계: " + settings.navigationApp.label + " 앱만 실행");
+            } else {
+                notify(callback, "2단계: " + settings.navigationApp.label + " 길안내 실행");
+            }
+            boolean navigationStarted = navigationLauncher.launch(context, settings.navigationApp, navigationDestination);
+            if (!navigationStarted) {
+                notify(callback, settings.navigationApp.label + " 실행에 실패했습니다. 앱 설치 상태를 확인해 주세요.");
+            }
+        }, navigationDelay);
         return true;
     }
 
