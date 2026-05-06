@@ -1,0 +1,51 @@
+plugins {
+    id "com.android.application"
+}
+
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+
+def escapedProp = { name ->
+    (localProps.getProperty(name, "") ?: "")
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+}
+
+android {
+    namespace "com.example.commuteauto"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.example.commuteauto"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField "String", "KAKAO_NATIVE_APP_KEY", "\"${escapedProp("KAKAO_NATIVE_APP_KEY")}\""
+        buildConfigField "String", "NAVER_MAP_CLIENT_ID", "\"${escapedProp("NAVER_MAP_CLIENT_ID")}\""
+        buildConfigField "String", "TMAP_APP_KEY", "\"${escapedProp("TMAP_APP_KEY")}\""
+        buildConfigField "String", "GOOGLE_MAPS_API_KEY", "\"${escapedProp("GOOGLE_MAPS_API_KEY")}\""
+
+        manifestPlaceholders = [
+                GOOGLE_MAPS_API_KEY: escapedProp("GOOGLE_MAPS_API_KEY")
+        ]
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation "com.kakao.sdk:v2-navi:2.20.1"
+    implementation "com.google.android.gms:play-services-maps:19.0.0"
+}

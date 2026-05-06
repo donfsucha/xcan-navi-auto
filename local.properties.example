@@ -1,0 +1,9 @@
+# Copy these values into local.properties on your machine.
+# Do not commit real API keys.
+
+sdk.dir=C\:\\Users\\cds\\AppData\\Local\\Android\\Sdk
+
+KAKAO_NATIVE_APP_KEY=
+NAVER_MAP_CLIENT_ID=
+TMAP_APP_KEY=
+GOOGLE_MAPS_API_KEY=
