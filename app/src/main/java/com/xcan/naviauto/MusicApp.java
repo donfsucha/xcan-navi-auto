@@ -1,4 +1,4 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
 enum MusicApp {
     SAMSUNG_MUSIC("삼성뮤직", "com.sec.android.app.music"),

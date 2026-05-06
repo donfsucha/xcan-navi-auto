@@ -1,4 +1,4 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
 final class UserSettings {
     final Place homePlace;

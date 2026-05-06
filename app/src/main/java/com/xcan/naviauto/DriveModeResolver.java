@@ -1,4 +1,4 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

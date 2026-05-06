@@ -15,11 +15,11 @@ def escapedProp = { name ->
 }
 
 android {
-    namespace "com.example.commuteauto"
+    namespace "com.xcan.naviauto"
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.example.commuteauto"
+        applicationId "com.xcan.naviauto"
         minSdk 26
         targetSdk 35
         versionCode 1

@@ -1,4 +1,4 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;

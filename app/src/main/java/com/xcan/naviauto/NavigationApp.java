@@ -1,4 +1,4 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
 enum NavigationApp {
     TMAP("T-Map", "com.skt.tmap.ku"),

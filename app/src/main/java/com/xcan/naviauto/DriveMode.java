@@ -1,4 +1,4 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
 enum DriveMode {
     GO_TO_WORK("출근 모드", "회사"),

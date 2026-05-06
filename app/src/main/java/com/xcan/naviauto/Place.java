@@ -1,24 +1,20 @@
-package com.example.commuteauto;
+package com.xcan.naviauto;
 
-final class DestinationEntry {
+final class Place {
     final String name;
     final String address;
     final Double latitude;
     final Double longitude;
 
-    DestinationEntry(String name, String address) {
+    Place(String name, String address) {
         this(name, address, null, null);
     }
 
-    DestinationEntry(String name, String address, Double latitude, Double longitude) {
-        this.name = name == null ? "" : name.trim();
+    Place(String name, String address, Double latitude, Double longitude) {
+        this.name = name;
         this.address = address == null ? "" : address.trim();
         this.latitude = latitude;
         this.longitude = longitude;
-    }
-
-    boolean hasName() {
-        return !name.isEmpty();
     }
 
     boolean hasAddress() {
@@ -29,7 +25,7 @@ final class DestinationEntry {
         return latitude != null && longitude != null;
     }
 
-    Place asPlace() {
-        return new Place(hasName() ? name : "목적지", address, latitude, longitude);
+    String displayName() {
+        return hasAddress() ? address : name;
     }
 }
