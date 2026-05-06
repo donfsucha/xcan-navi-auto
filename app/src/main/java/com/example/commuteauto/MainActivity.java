@@ -413,7 +413,10 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         mapView.setBackgroundColor(COLOR_SURFACE);
         mapView.setOnTouchListener((view, event) -> {
             view.getParent().requestDisallowInterceptTouchEvent(true);
-            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                view.performClick();
+                view.getParent().requestDisallowInterceptTouchEvent(false);
+            } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
                 view.getParent().requestDisallowInterceptTouchEvent(false);
             }
             return false;
