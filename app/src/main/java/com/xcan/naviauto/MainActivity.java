@@ -1,10 +1,12 @@
 package com.xcan.naviauto;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -44,6 +46,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity implements OnMapReadyCallback {
+    private static final String PRIVACY_POLICY_URL = "http://cnanfc.com/terms";
     private static final int COLOR_BACKGROUND = 0xFF081120;
     private static final int COLOR_SURFACE = 0xFF172236;
     private static final int COLOR_FIELD = 0xFF0C1728;
@@ -347,6 +350,10 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         settingStatusText.setPadding(dp(12), dp(10), dp(12), dp(10));
         settingStatusText.setBackground(rounded(COLOR_SURFACE, COLOR_SURFACE, 8));
         root.addView(settingStatusText, matchWrap());
+
+        Button privacyButton = secondaryButton("개인정보처리방침");
+        privacyButton.setOnClickListener(v -> openPrivacyPolicy());
+        root.addView(privacyButton, matchWrap());
 
         screen.addView(scrollView, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -762,6 +769,16 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         exploreView.setVisibility(View.GONE);
         settingsView.setVisibility(View.VISIBLE);
         updateAddressConfirmState();
+    }
+
+    private void openPrivacyPolicy() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(intent);
+        } catch (RuntimeException e) {
+            Toast.makeText(this, "개인정보처리방침을 열 수 없습니다.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void startDriveCountdown() {
